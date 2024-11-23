@@ -64,23 +64,32 @@ class Application(tk.Frame):
         self.button3.pack(side="left")
 
     def button1_clicked(self):
-        run_command(['systemctl start ollama'])
+        run_command(['systemctl', 'start', 'ollama'])
 
     def button2_clicked(self):
-        run_command(['systemctl stop ollama'])
+        run_command(['systemctl', 'stop', 'ollama'])
 
     def button3_clicked(self):
         hollamaPath = read_hollama_path()
         run_command([hollamaPath])
 
 
-#Executes a shell command and prints the result.
-def run_command(command):
+# Open a file dialog and get the selected file path
+def open_file():
     try:
-        result = subprocess.run(command, check=True)
-        print(result)
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed with code {e.returncode}: {e.output}")
+        filepath = filedialog.askopenfilename(
+        title="Select a File",
+        filetypes=(("x-executable", "*.exe"), ("All files", "**"))
+    )
+        if not filepath:
+            return  # No file selected
+    
+    # Save the filepath on a txt file
+        with open("hollama_path.txt", "w") as output_file:
+            output_file.write(filepath)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 
 # Read the Hollama path from a text file
 def read_hollama_path():
@@ -89,22 +98,18 @@ def read_hollama_path():
             hollama_filepath = input_file.read().strip()
             return hollama_filepath
     except FileNotFoundError:
-        print("File 'hollama_path.txt' not found.")
+        #print("File 'hollama_path.txt' not found.")
         open_file()
-       
 
-def open_file():
-    # Open a file dialog and get the selected file path
-    filepath = filedialog.askopenfilename(
-        title="Select a File",
-        filetypes=(("x-executable", "*.exe"), ("All files", "**"))
-    )
-    if not filepath:
-        return  # No file selected
-    
-    # Save the filepath on a txt file
-    with open("hollama_path.txt", "w") as output_file:
-        output_file.write(filepath)
+ #Executes a shell command and prints the result.
+def run_command(command):
+    try:
+        result = subprocess.run(command, check=True)
+        print(result)
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with code {e.returncode}: {e.output}")
+      
+
 
 # Create the main window
 root = tk.Tk()
